@@ -18,4 +18,6 @@ TERRAFORM APPLY - ---- - - --
 
 URL
 ![alt text](img/image-5.png)
+
+Postman
 ![alt text](img/image-6.png)
