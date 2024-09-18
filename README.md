@@ -1,148 +1,93 @@
-# lab-tf-2024-2
+# 🌐 Laboratorio de Despliegue de Azure Function con Terraform 🚀
 
-### **Infraestructura como código**
+En este laboratorio, configuramos el **CLI de Azure** y desplegamos una **Azure Function** usando **Terraform**. A continuación, se detallan los pasos y los resultados obtenidos durante el despliegue.
 
-- **Utilizar archivos de definición**: Todas las herramientas de infraestructura como código tienen un formato propio para definir la infraestructura.
-- **Autodocumentación de procesos y sistemas**: Al utilizar el enfoque de infraestructura como código, podemos reutilizar el código. Es importante que este esté documentado adecuadamente para que otros usuarios comprendan el propósito y funcionamiento del módulo.
-- **Versionar todo**: Esto nos permite rastrear los cambios realizados. Si se comete un error, podemos retroceder a una versión estable.
-- **Preferir cambios pequeños**: Realizar cambios pequeños para evitar grandes impactos.
-- **Mantener los servicios continuamente disponibles**: Garantizar la disponibilidad continua es clave en la infraestructura.
+## 📁 Configuración y Ejecución de Terraform Plan
 
-### **Beneficios de la infraestructura como código**
+El primer paso fue inicializar y ejecutar el comando `terraform plan` para visualizar los cambios que Terraform realizaría en la infraestructura. Este comando muestra el plan de despliegue y los recursos que se crearán.
 
-- **Creación rápida y bajo demanda**: Con un único archivo de definición de infraestructura que almacena todas nuestras configuraciones, podemos crear múltiples veces la infraestructura sin necesidad de rehacer todo desde el principio.
-- **Automatización**: Una vez creado el archivo de definición, podemos usar herramientas de **continuous integration** para automatizar la infraestructura.
-- **Visibilidad y trazabilidad**: El versionamiento de la infraestructura como código permite una mayor visibilidad y trazabilidad, ya que todos los cambios quedan registrados.
-- **Ambientes homogéneos**: Podemos crear varios ambientes a partir del mismo archivo de definición, cambiando únicamente algunos parámetros.
+```bash
+terraform plan
+```
+
+### 🌟 Salida del Terraform Plan - Parte 1
+
+Esta parte nos muestra los recursos que **Terraform** planea crear, tales como el **Resource Group** y la **Storage Account**.
+
+![Salida Terraform Plan 1](img/image.png)
+
+### 🌟 Salida del Terraform Plan - Parte 2
+
+Se continúa con la información sobre otros recursos, como el **Service Plan** y la **Function App**.
+
+![Salida Terraform Plan 2](img/image-1.png)
+
+### 🌟 Salida del Terraform Plan - Parte 3
+
+Finalmente, vemos los recursos adicionales que se despliegan con la **Function App** y su configuración.
+
+![Salida Terraform Plan 3](img/image-2.png)
 
 ---
 
-### **Mejores prácticas**
+## 🚀 Ejecución de Terraform Apply
 
-- **Modularidad**: Es recomendable dividir la infraestructura en módulos reutilizables para facilitar su mantenimiento y escalabilidad.
-- **Mantener las configuraciones centralizadas**: Utilizar variables y archivos de configuración para gestionar parámetros y evitar valores "hardcoded".
-- **Manejo seguro del estado**: Almacenar el archivo `terraform.tfstate` de manera remota (por ejemplo, en un bucket S3 con bloqueo de versión) para evitar problemas en equipos distribuidos.
-- **Revisiones de código y pull requests**: Antes de aplicar cambios importantes en la infraestructura, hacer revisiones mediante pull requests para asegurar que los cambios han sido revisados por otros.
-
-### **Ambientes**
-
-Terraform permite la creación de múltiples ambientes (dev, stage, prod) con diferentes configuraciones. Puedes gestionar estos ambientes utilizando archivos `.tfvars` específicos para cada entorno.
-
-- **Ambiente de desarrollo (dev)**: Se recomienda utilizar recursos más pequeños y económicos en este ambiente para reducir costos.
-- **Ambiente de producción (prod)**: Aquí es importante configurar instancias y recursos con redundancia y alta disponibilidad.
-  
-Ejemplo de estructura para gestionar ambientes:
+Con el plan revisado, procedimos a ejecutar `terraform apply` para aplicar los cambios en la infraestructura.
 
 ```bash
-├── main.tf
-├── variables.tf
-├── dev.tfvars
-├── prod.tfvars
+terraform apply
 ```
 
-Al aplicar los cambios para un ambiente en específico, puedes ejecutar:
+### 🌟 Ejecución de Terraform Apply - Parte 1
 
-```bash
-terraform apply --var-file="dev.tfvars"
-```
+Terraform comienza a desplegar los recursos en Azure. Esta parte muestra el inicio del proceso de creación de los recursos.
 
-### **Automatización con CI/CD**
+![Terraform Apply 1](img/image-3.png)
 
-Integrar Terraform en un flujo de CI/CD es una excelente práctica para automatizar la gestión de la infraestructura. Puedes utilizar herramientas como Jenkins, GitLab CI, o GitHub Actions para automatizar el proceso de despliegue y validación.
+### 🌟 Ejecución de Terraform Apply - Parte 2
 
-Ejemplo de un pipeline básico en GitLab CI:
+Aquí se muestra el progreso, incluyendo la creación de la **Function App** y otros componentes relacionados.
 
-```yaml
-stages:
-  - validate
-  - plan
-  - apply
-
-validate:
-  script:
-    - terraform init
-    - terraform validate
-
-plan:
-  script:
-    - terraform plan
-
-apply:
-  script:
-    - terraform apply --auto-approve
-```
-
-Este pipeline primero inicializa el entorno, luego valida la configuración, y finalmente aplica los cambios automáticamente.
-
-### **Seguridad**
-
-- **Manejo seguro de credenciales**: Nunca almacenar credenciales en el código fuente. Utilizar herramientas como **AWS Secrets Manager** o **HashiCorp Vault** para gestionar los secretos de manera segura.
-- **Control de acceso basado en roles (IAM)**: Asignar roles y permisos específicos a los recursos de Terraform mediante políticas de IAM para restringir el acceso según sea necesario.
-- **Cifrado de datos**: Utilizar cifrado en reposo y en tránsito para proteger los datos sensibles, como el uso de **KMS (Key Management Service)** de AWS.
-- **Seguridad en el estado**: Si almacenas el archivo `terraform.tfstate` en un bucket S3, asegúrate de habilitar el cifrado y el control de versiones para evitar modificaciones no autorizadas.
+![Terraform Apply 2](img/image-4.png)
 
 ---
 
-### **Manejo de variables en Terraform**
+## 🌐 URL Generada por la Function App
 
-Para hacer escalable y reutilizable el archivo de definición de infraestructura, se recomienda no usar valores "hardcoded". Terraform permite crear variables de los siguientes tipos:
-
-- **string**
-- **number**
-- **boolean**
-- **map**
-- **list**
-
-Si no se declara un tipo, el valor por defecto será `string`. Sin embargo, es una buena práctica especificar el tipo de la variable.
-
-Ejemplo de definición de variables:
-
-```terraform
-variable "ami_id" {
-  type        = string
-  description = "ID de la AMI"
-}
-
-variable "instance_type" {
-  type        = string
-  description = "Tipo de instancia"
-}
-
-variable "tags" {
-  type        = map
-  description = "Etiquetas para la instancia"
-}
-```
-
-### **Asignar valores a las variables**
-
-Los valores de las variables se pueden asignar de tres maneras:
-
-1. Utilizando variables de entorno.
-2. Pasándolos como argumentos en la línea de comandos.
-3. Mediante un archivo `.tfvars` con formato `key = value`.
-
-Ejemplo de archivo `.tfvars`:
-
-```terraform
-ami_id        = "ami-0ca0c67309196175e"
-instance_type = "t2.micro"
-tags = {
-  Name       = "devops-tf"
-  Environment = "Dev"
-}
-```
-
-Para usar este archivo con variables:
+Una vez completado el despliegue, **Terraform** genera la URL de acceso a la **Function App**. Esta URL permite invocar la aplicación de manera pública.
 
 ```bash
-terraform apply --var-file="dev.tfvars"
+output "function_app_url" {
+  value = azurerm_function_app.function_app.default_hostname
+}
 ```
 
-### **Destruir la infraestructura**
+### 🌟 URL de la Function App
 
-Para eliminar la infraestructura creada, se puede utilizar:
+Aquí puedes ver la URL que se generó tras el despliegue exitoso:
 
-```bash
-terraform destroy --var-file="dev.tfvars" -auto-approve
-```
+![URL Function App](img/image-5.png)
+
+---
+
+## 🛠️ Prueba en Postman
+
+Para verificar el correcto funcionamiento de la **Function App**, realizamos una prueba con **Postman**, enviando una solicitud HTTP a la URL generada. El resultado muestra que la aplicación está respondiendo correctamente.
+
+### 🌟 Prueba con Postman
+
+La prueba fue exitosa y recibimos la respuesta esperada de la **Function App**.
+
+![Postman Test](img/image-6.png)
+
+---
+
+## 📊 Resultados
+
+- **Terraform Plan** se ejecutó correctamente, mostrando los recursos que se desplegarían en **Azure**.
+- **Terraform Apply** creó y configuró los recursos, incluyendo una **Function App** funcional.
+- La **Function App** fue probada satisfactoriamente utilizando **Postman**.
+
+## 🎯 Conclusión
+
+Este laboratorio demostró la eficacia de usar **Terraform** para gestionar y desplegar recursos en **Azure**, automatizando el proceso de creación de una **Azure Function**. La infraestructura como código permite un despliegue más rápido y organizado de servicios en la nube.
